@@ -1,19 +1,43 @@
 import { useState } from "react";
 import CardComponent from "./card";
-import { Card, List } from "@/app/lib/types";
+import { Card, DropTarget, List } from "@/app/lib/types";
+import Dropdown from "./dropdown";
 
 interface ListProps {
     list: List
-    onItemsDropped: (card: Card, targetListId: string) => void;
-    addCard: (card: Card, targetListId: string) => void;
+    draggedCard: Card | null;
+    dropTarget: DropTarget | null;
+    onDragStartCard: (card: Card) => void;
+    onUpdateDropTarget: (target: DropTarget | null) => void;
+    onDropCard: () => void;
+    onCreateCard: (card: Card, target: string) => void;
+    onRenameList: (title: string, list: string) => void;
 }
 
-export default function ListComponent({ list, onItemsDropped, addCard }: ListProps) {
+export default function ListComponent({
+  list,
+  draggedCard,
+  dropTarget,
+  onDragStartCard,
+  onUpdateDropTarget,
+  onDropCard,
+  onCreateCard,
+  onRenameList,
+}: ListProps) {
     const [input, setInput] = useState("");
     const [show, setShow] = useState(false);
 
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
+    const handleCreate = (event?: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event && event.key !== 'Enter') return;
+        event?.preventDefault();
+        const newCard: Card = {
+            id: crypto.randomUUID(),
+            title: input,
+            list_id: list.id
+        }
+        onCreateCard(newCard, list.id);
+        setInput("");
+        setShow(false);
     }
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -23,32 +47,78 @@ export default function ListComponent({ list, onItemsDropped, addCard }: ListPro
 
         if (data) {
             const card = JSON.parse(data);
-            onItemsDropped(card, list.id);
+            onDropCard();
+        }
+    };
+
+    const handleCardDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!draggedCard) return;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        const targetIndex = e.clientY < midY ? index : index + 1;
+
+        if (dropTarget?.listId !== list.id || dropTarget?.index !== targetIndex) {
+            onUpdateDropTarget({ listId: list.id, index: targetIndex });
+        }
+    };
+
+    const handleListDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        if (!draggedCard) return;
+
+        if (dropTarget?.listId !== list.id) {
+            onUpdateDropTarget({ listId: list.id, index: list.cards.length });
         }
     };
 
     return (
         <div 
-            onDragOver={handleDragOver}
+            onDragOver={handleListDragOver}
             onDrop={handleDrop}
-            className="flex flex-col w-75 bg-stone-950 rounded-2xl">
-            <div className="justify-between pt-4 pb-2 px-6">
-                <h1 className="font-black text-lg text-gray-300">
-                    {list.title}
-                </h1>
+            className="flex flex-col w-75 bg-stone-950 rounded-2xl shadow">
+            <div className="flex justify-between items-center text-gray-300 text-md pt-2.5 pb-2 pl-6 pr-2.5 ">
+                <input 
+                    className="font-black outline-none"
+                    value={list.title} onChange={(e) => onRenameList(e.target.value, list.id)} />
+                <div className="flex gap-3 items-center">
+                    <h2 className="font-medium">
+                        {list.cards.length}
+                    </h2>
+                    <Dropdown />
+                </div>
             </div>
             <div 
                 className="flex flex-col px-2.5 gap-2.5">
-                {list.cards.map((card) => (
-                    <div key={card.id}>
-                        <CardComponent card={card} />
-                    </div>
-                ))}
+                {list.cards.map((card, index) => {
+                    const isTargetList = dropTarget?.listId === list.id;
+                    const showPlaceholderHere = isTargetList && dropTarget?.index === index;
+                    const isDraggedCard = draggedCard?.id === card.id;
+
+                    return (
+                        <div className="flex flex-col gap-2.5" key={card.id}>
+                            {showPlaceholderHere && <Placeholder />}
+                            <div
+                                onDragStart={() => onDragStartCard(card)}
+                                onDragOver={(e) => handleCardDragOver(e, index)}
+                                className={isDraggedCard ? 'opacity-30' : ''}
+                            >
+                                <CardComponent card={card} />
+                            </div>
+                        </div>
+                    )
+                })}
+                {dropTarget?.listId === list.id && dropTarget.index >= list.cards.length && (
+                    <Placeholder />
+                )}
             </div>
             {show ? 
             <div className="flex flex-col items-start px-2.5 py-2.5 gap-2.5">
                 <div className="bg-gray-400/20 px-4 py-2 rounded-lg w-full">
                     <textarea
+                        onKeyDown={(e) => handleCreate(e)}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Enter a title"
@@ -57,16 +127,7 @@ export default function ListComponent({ list, onItemsDropped, addCard }: ListPro
                 </div>
                 <div className="flex w-full justify-between">
                     <button 
-                        onClick={() => {
-                            const newCard: Card = {
-                                id: crypto.randomUUID(),
-                                title: input,
-                                list_id: list.id
-                            }
-                            addCard(newCard, list.id);
-                            setInput("");
-                            setShow(false);
-                        }}
+                        onClick={() => handleCreate()}
                         className="bg-blue-400 px-3 py-1.5 font-semibold text-blue-900 rounded-lg">
                         Add card
                     </button>
@@ -95,4 +156,10 @@ export default function ListComponent({ list, onItemsDropped, addCard }: ListPro
             }
         </div>
     )
+}
+
+function Placeholder() {
+  return (
+    <div className="h-10 w-full rounded-lg bg-gray-500/10 transition-all" />
+  );
 }

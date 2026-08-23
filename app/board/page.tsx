@@ -1,12 +1,38 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddList from "./components/addList";
 import ListComponent from "./components/list";
-import { Card, List } from "../lib/types";
+import { Board, Card, DropTarget, List } from "../lib/types";
 
-export default function Board() {
+export default function BoardPage() {
     const [lists, setLists] = useState<List[]>([]);
+    const [draggedCard, setDraggedCard] = useState<Card | null>(null);
+    const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
+
+    useEffect(() => {
+        fetchInitialValues();
+    }, [])
+
+    useEffect(() => {
+        if (lists.length > 0) save();
+    }, [lists])
+
+    function fetchInitialValues() {
+        if (localStorage.getItem('board') != null) {
+            const board: Board = JSON.parse(localStorage.getItem('board')!)
+            setLists(board.lists)
+        }
+    }
+
+    function save() {
+        const board: Board = {
+            id: "board",
+            title: "board",
+            lists: lists
+        }
+        localStorage.setItem('board', JSON.stringify(board))
+    }
 
     function handleNewList(list: List) {
         setLists([...lists, list])
@@ -28,26 +54,13 @@ export default function Board() {
         );
     }
 
-    function handleDrop(card: Card, targetListId: string) {
-        const sourceListId = card.list_id;
-
-        if (sourceListId === targetListId) return;
-
+    function handleListRename(title: string, targetListId: string) {
         setLists((prevLists) =>
             prevLists.map((list) => {
-                card.list_id = targetListId;
-                if (list.id === sourceListId) {
-                    return {
-                        ...list,
-                        cards: list.cards.filter((c) => c.id !== card.id)
-                    };
-                }
-
                 if (list.id === targetListId) {
-                    const updatedCard = { ...card, list: targetListId };
                     return {
                         ...list,
-                        cards: [...list.cards, updatedCard]
+                        title: title
                     };
                 }
 
@@ -56,16 +69,42 @@ export default function Board() {
         );
     }
 
+    function handleDrop() {
+        if (!draggedCard || !dropTarget) return;
+
+        setLists((prev) =>
+            prev.map((list) => {
+                let newCards = list.cards.filter((c) => c.id !== draggedCard.id);
+
+                if (list.id === dropTarget.listId) {
+                    const updatedCard = { ...draggedCard, list_id: dropTarget.listId };
+                    newCards.splice(dropTarget.index, 0, updatedCard);
+                }
+
+                return { ...list, cards: newCards };
+            })
+        );
+
+        setDraggedCard(null);
+        setDropTarget(null);
+    }
+
     return (
-        <div className="flex w-full h-screen p-8 gap-5 overflow-scroll">
+        <div className="flex w-full h-full p-3 gap-5 overflow-scroll">
             <img 
                 className="fixed top-0 left-0 -z-10"
                 src={'/image.png'} />
             {lists.map((list) => (
                 <div key={list.id}>
-                    <ListComponent list={list} 
-                        onItemsDropped={(c, target) => handleDrop(c, target)}
-                        addCard={(c, t) => addNewCard(c, t)}
+                    <ListComponent 
+                        list={list}
+                        draggedCard={draggedCard}
+                        dropTarget={dropTarget}
+                        onDragStartCard={setDraggedCard}
+                        onUpdateDropTarget={setDropTarget}
+                        onDropCard={() => handleDrop()}
+                        onCreateCard={(c, t) => addNewCard(c, t)}
+                        onRenameList={(t, l) => handleListRename(t, l)}
                     />
                 </div>
             ))}

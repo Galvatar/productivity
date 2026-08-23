@@ -16,7 +16,7 @@ export default function CardComponent({ card }: CardProps) {
             onDragStart={handleDragStart}
         >
             <div className="z-0 bg-gray-400/20 rounded-lg px-4 py-2 border border-black" >
-                <h1 className="font-semibold">
+                <h1 className="font-medium">
                     {card.title}
                 </h1>
             </div>

@@ -11,3 +11,14 @@ export interface List {
     title: string
     cards: Card[]
 }
+
+export interface DropTarget {
+    listId: string
+    index: number
+}
+
+export interface Board {
+    id: string
+    title: string
+    lists: List[]
+}
