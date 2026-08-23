@@ -1,0 +1,13 @@
+import { UUID } from "crypto";
+
+export interface Card {
+    id: string
+    title: string
+    list_id: string
+}
+
+export interface List {
+    id: string
+    title: string
+    cards: Card[]
+}

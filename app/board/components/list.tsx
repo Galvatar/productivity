@@ -1,15 +1,16 @@
 import { useState } from "react";
-import Card from "./card";
+import CardComponent from "./card";
+import { Card, List } from "@/app/lib/types";
 
 interface ListProps {
-    title: string
-    onItemsDropped?: (itemData: string) => void;
+    list: List
+    onItemsDropped: (card: Card, targetListId: string) => void;
+    addCard: (card: Card, targetListId: string) => void;
 }
 
-export default function List({ title }: ListProps) {
+export default function ListComponent({ list, onItemsDropped, addCard }: ListProps) {
     const [input, setInput] = useState("");
     const [show, setShow] = useState(false);
-    const [cards, setCards] = useState<string[]>([])
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -18,11 +19,11 @@ export default function List({ title }: ListProps) {
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
 
-        const data = e.dataTransfer.getData('text/plain');
-        console.log('Dropped data:', data);
+        const data = e.dataTransfer.getData('text/json');
 
         if (data) {
-            setCards([...cards, data]);
+            const card = JSON.parse(data);
+            onItemsDropped(card, list.id);
         }
     };
 
@@ -33,14 +34,14 @@ export default function List({ title }: ListProps) {
             className="flex flex-col w-75 bg-stone-950 rounded-2xl">
             <div className="justify-between pt-4 pb-2 px-6">
                 <h1 className="font-black text-lg text-gray-300">
-                    {title}
+                    {list.title}
                 </h1>
             </div>
             <div 
                 className="flex flex-col px-2.5 gap-2.5">
-                {cards.map((card) => (
-                    <div key={card}>
-                        <Card title={card} />
+                {list.cards.map((card) => (
+                    <div key={card.id}>
+                        <CardComponent card={card} />
                     </div>
                 ))}
             </div>
@@ -57,7 +58,12 @@ export default function List({ title }: ListProps) {
                 <div className="flex w-full justify-between">
                     <button 
                         onClick={() => {
-                            setCards([...cards, input])
+                            const newCard: Card = {
+                                id: crypto.randomUUID(),
+                                title: input,
+                                list_id: list.id
+                            }
+                            addCard(newCard, list.id);
                             setInput("");
                             setShow(false);
                         }}

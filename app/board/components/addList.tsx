@@ -1,7 +1,8 @@
+import { List } from "@/app/lib/types";
 import { useState } from "react";
 
 interface AddListProps {
-    onAdd(title: string): void
+    onAdd(list: List): void
 }
 
 export default function AddList({ onAdd }: AddListProps) {
@@ -9,7 +10,7 @@ export default function AddList({ onAdd }: AddListProps) {
     const [show, setShow] = useState(false);
 
     return (
-        <div onClick={() => setShow(true)} className={`flex h-fit items-center ${show ? 'bg-stone-950' : 'px-3 py-2.5 bg-white/25 hover:bg-white/20'} w-75 rounded-2xl cursor-pointer`}>
+        <div onClick={() => setShow(true)} className={`flex h-fit items-center ${show ? 'bg-stone-950' : 'px-3 py-2.5 bg-white/25 hover:bg-white/20'} min-w-75 rounded-2xl cursor-pointer`}>
             {show ?
             <div className="flex w-full flex-col items-start px-2.5 py-2.5 gap-2.5">
                 <div className="bg-gray-400/20 px-3.5 py-1 rounded-md w-full border border-gray-400">
@@ -23,7 +24,12 @@ export default function AddList({ onAdd }: AddListProps) {
                 <div className="flex w-full justify-between">
                     <button 
                         onClick={() => {
-                            onAdd(title)
+                            const newList: List = {
+                                id: crypto.randomUUID(),
+                                title: title,
+                                cards: []
+                            }
+                            onAdd(newList)
                             setTitle("");
                             setShow(false);
                         }}
