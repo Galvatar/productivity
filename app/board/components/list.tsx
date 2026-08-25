@@ -12,6 +12,9 @@ interface ListProps {
     onDropCard: () => void;
     onCreateCard: (card: Card, target: string) => void;
     onRenameList: (title: string, list: string) => void;
+    onDeleteList: (target: string) => void;
+    onRenameCard: (title: string, target: string) => void;
+    onDeleteCard: (target: string) => void;
 }
 
 export default function ListComponent({
@@ -23,6 +26,9 @@ export default function ListComponent({
   onDropCard,
   onCreateCard,
   onRenameList,
+  onDeleteList,
+  onRenameCard,
+  onDeleteCard
 }: ListProps) {
     const [input, setInput] = useState("");
     const [show, setShow] = useState(false);
@@ -37,7 +43,6 @@ export default function ListComponent({
         }
         onCreateCard(newCard, list.id);
         setInput("");
-        setShow(false);
     }
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -74,12 +79,16 @@ export default function ListComponent({
         }
     };
 
+    const handleListDelete = () => {
+        onDeleteList(list.id);
+    }
+
     return (
         <div 
             onDragOver={handleListDragOver}
             onDrop={handleDrop}
-            className="flex flex-col w-75 bg-stone-950 rounded-2xl shadow">
-            <div className="flex justify-between items-center text-gray-300 text-md pt-2.5 pb-2 pl-6 pr-2.5 ">
+            className="flex flex-col w-75 max-h-full bg-surface-container rounded-2xl shadow">
+            <div className="flex justify-between items-center text-on-surface-text text-md pt-2.5 pb-2 pl-5 pr-2.5 ">
                 <input 
                     className="font-black outline-none"
                     value={list.title} onChange={(e) => onRenameList(e.target.value, list.id)} />
@@ -87,11 +96,11 @@ export default function ListComponent({
                     <h2 className="font-medium">
                         {list.cards.length}
                     </h2>
-                    <Dropdown />
+                    <Dropdown onDelete={() => handleListDelete()} />
                 </div>
             </div>
             <div 
-                className="flex flex-col px-2.5 gap-2.5">
+                className="flex flex-col px-2.5 gap-2.5 overflow-scroll">
                 {list.cards.map((card, index) => {
                     const isTargetList = dropTarget?.listId === list.id;
                     const showPlaceholderHere = isTargetList && dropTarget?.index === index;
@@ -103,9 +112,14 @@ export default function ListComponent({
                             <div
                                 onDragStart={() => onDragStartCard(card)}
                                 onDragOver={(e) => handleCardDragOver(e, index)}
+                                onDragEnd={() => onDropCard()}
                                 className={isDraggedCard ? 'opacity-30' : ''}
                             >
-                                <CardComponent card={card} />
+                                <CardComponent 
+                                    card={card} 
+                                    onRename={(title, target) => onRenameCard(title, target)}
+                                    onDelete={(t) => onDeleteCard(t)}
+                                />
                             </div>
                         </div>
                     )
@@ -116,7 +130,7 @@ export default function ListComponent({
             </div>
             {show ? 
             <div className="flex flex-col items-start px-2.5 py-2.5 gap-2.5">
-                <div className="bg-gray-400/20 px-4 py-2 rounded-lg w-full">
+                <div className="bg-on-surface-container px-4 py-2 rounded-lg w-full">
                     <textarea
                         onKeyDown={(e) => handleCreate(e)}
                         value={input}
@@ -125,7 +139,7 @@ export default function ListComponent({
                         className="outline-none font-semibold w-full resize-none h-10"
                     />
                 </div>
-                <div className="flex w-full justify-between">
+                <div className="flex w-full gap-1">
                     <button 
                         onClick={() => handleCreate()}
                         className="bg-blue-400 px-3 py-1.5 font-semibold text-blue-900 rounded-lg">
@@ -133,7 +147,7 @@ export default function ListComponent({
                     </button>
                     <div 
                         onClick={() => setShow(false)} 
-                        className="flex items-center justify-center hover:bg-gray-400/20 aspect-square rounded-lg">
+                        className="flex w-8 items-center justify-center hover:bg-on-surface-container aspect-square rounded-lg">
                         <button>
                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
                             </svg>

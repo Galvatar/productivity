@@ -54,6 +54,10 @@ export default function BoardPage() {
         );
     }
 
+    function handleListDelete(targetListId: string) {
+        setLists((prevLists) => prevLists.filter((l) => l.id !== targetListId))
+    }
+
     function handleListRename(title: string, targetListId: string) {
         setLists((prevLists) =>
             prevLists.map((list) => {
@@ -89,6 +93,26 @@ export default function BoardPage() {
         setDropTarget(null);
     }
 
+    function handleCardRename(title: string, target: string) {
+        setLists((prevLists) =>
+            prevLists.map((list) => ({
+                ...list,
+                cards: list.cards.map((card) =>
+                    card.id === target ? { ...card, title: title } : card
+                ),
+            }))
+        );
+    }
+
+    function handleCardDelete(target: string) {
+        setLists((prevLists) => 
+            prevLists.map((list) => ({
+                ...list,
+                cards: list.cards.filter((card) => card.id !== target)
+            }))
+        );
+    }
+
     return (
         <div className="flex w-full h-full p-3 gap-5 overflow-scroll">
             <img 
@@ -105,6 +129,9 @@ export default function BoardPage() {
                         onDropCard={() => handleDrop()}
                         onCreateCard={(c, t) => addNewCard(c, t)}
                         onRenameList={(t, l) => handleListRename(t, l)}
+                        onDeleteList={(t) => handleListDelete(t)}
+                        onRenameCard={(title, target) => handleCardRename(title, target)}
+                        onDeleteCard={(t) => handleCardDelete(t)}
                     />
                 </div>
             ))}

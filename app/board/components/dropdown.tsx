@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-export default function Dropdown() {
+interface DropdownProps {
+    onDelete(): void
+}
+
+export default function Dropdown({ onDelete }: DropdownProps) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -12,21 +16,22 @@ export default function Dropdown() {
                 </svg>
             </button>
             {open &&
-                <div className="absolute z-20 top-full">
-                    <div className="flex flex-col relative isolate w-75 shadow-[0_0_15px_0_rgba(0,0,0,0.5)] bg-gray-400/20 rounded-lg justify-between mt-2.5">
-                        <span className="flex grid-cols-3 items-center absolute top-0 left-0 -z-5 w-full h-full rounded-lg bg-gray-950 pointer-events-none" />
+                <div className="absolute z-30 top-full">
+                    <div className="flex flex-col relative isolate w-75 shadow-[0_0_15px_0_rgba(0,0,0,0.5)] bg-surface-container-low rounded-lg justify-between mt-2.5">
                         <div className="flex w-full justify-between">
                             <h1 className="whitespace-nowrap font-semibold text-gray-300 text-md w-full m-2.5">
                                 List actions
                             </h1>
                             <div className="flex m-2.5">
-                                <button>
+                                <button onClick={() => setOpen(false)}>
                                     <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
                                     </svg>
                                 </button>
                             </div>
                         </div>
-                        <button className="flex mb-5 w-full hover:bg-gray-300/20 px-3">
+                        <button 
+                            onClick={() => onDelete()}
+                            className="flex w-full hover:bg-stone-400/20 px-3 py-1 mb-5">
                             Delete this list
                         </button>
                     </div>

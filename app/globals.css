@@ -3,6 +3,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --on-surface-text: #c5c5c9;
+  --surface-container: #0f1206;
+  --on-surface-container: #242529;
+  --surface-container-low: #2b2c2f;
+
+  --header: #1f2021;
+  --icon: #a9abaf;
+
+  --secondary: #5b8bd6;
+  --on-secondary: #1e2025;
 }
 
 @theme inline {
@@ -10,6 +21,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-on-surface-text: var(--on-surface-text);
+  --color-surface-container: var(--surface-container);
+  --color-on-surface-container: var(--on-surface-container);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-header: var(--header);
+  --color-icon: var(--icon);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
 }
 
 @media (prefers-color-scheme: dark) {

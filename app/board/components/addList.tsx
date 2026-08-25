@@ -23,19 +23,19 @@ export default function AddList({ onAdd }: AddListProps) {
     }
 
     return (
-        <div onClick={() => setShow(true)} className={`flex h-fit items-center ${show ? 'bg-stone-950' : 'px-3 py-2.5 bg-white/25 hover:bg-white/20'} min-w-75 rounded-2xl cursor-pointer`}>
+        <div onClick={() => setShow(true)} className={`flex h-fit items-center ${show ? 'bg-surface-container' : 'px-3 py-2.5 bg-white/25 hover:bg-white/20'} min-w-75 rounded-2xl cursor-pointer`}>
             {show ?
             <div className="flex w-full flex-col items-start px-2.5 py-2.5 gap-2.5">
-                <div className="bg-gray-400/20 px-3.5 py-1 rounded-md w-full border border-gray-400">
+                <div className="bg-on-surface-container px-3.5 py-1 rounded-md w-full border border-gray-400 focus:border-secondary">
                     <input
                         value={title}
                         onKeyDown={(e) => handleAdd(e)}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Enter list name..."
-                        className="outline-none font-semibold w-full resize-none"
+                        className="group outline-none font-semibold w-full resize-none"
                     />
                 </div>
-                <div className="flex w-full justify-between">
+                <div className="flex w-full gap-1">
                     <button 
                         onClick={() => handleAdd()}
                         className="bg-blue-400 px-3 py-1.5 font-semibold text-blue-900 rounded-lg">
@@ -59,7 +59,7 @@ export default function AddList({ onAdd }: AddListProps) {
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M450-450H220v-60h230v-230h60v230h230v60H510v230h-60v-230Z"/>
                 </svg>
                 <h2 
-                    className="font-bold text-lg">
+                    className="font-bold">
                     Add another list
                 </h2>
             </div>}
