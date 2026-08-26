@@ -1,9 +1,8 @@
-import { UUID } from "crypto";
-
 export interface Card {
     id: string
     title: string
     list_id: string
+    description: string
 }
 
 export interface List {

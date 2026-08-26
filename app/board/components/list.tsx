@@ -15,6 +15,7 @@ interface ListProps {
     onDeleteList: (target: string) => void;
     onRenameCard: (title: string, target: string) => void;
     onDeleteCard: (target: string) => void;
+    onEditDescription: (title: string, target: string) => void;
 }
 
 export default function ListComponent({
@@ -28,7 +29,8 @@ export default function ListComponent({
   onRenameList,
   onDeleteList,
   onRenameCard,
-  onDeleteCard
+  onDeleteCard,
+  onEditDescription,
 }: ListProps) {
     const [input, setInput] = useState("");
     const [show, setShow] = useState(false);
@@ -39,7 +41,8 @@ export default function ListComponent({
         const newCard: Card = {
             id: crypto.randomUUID(),
             title: input,
-            list_id: list.id
+            list_id: list.id,
+            description: "",
         }
         onCreateCard(newCard, list.id);
         setInput("");
@@ -100,7 +103,7 @@ export default function ListComponent({
                 </div>
             </div>
             <div 
-                className="flex flex-col px-2.5 gap-2.5 overflow-scroll">
+                className="flex flex-col px-1.5 gap-1.5 overflow-y-scroll">
                 {list.cards.map((card, index) => {
                     const isTargetList = dropTarget?.listId === list.id;
                     const showPlaceholderHere = isTargetList && dropTarget?.index === index;
@@ -118,6 +121,7 @@ export default function ListComponent({
                                 <CardComponent 
                                     card={card} 
                                     onRename={(title, target) => onRenameCard(title, target)}
+                                    onEditDescription={(d, t) => onEditDescription(d, t)}
                                     onDelete={(t) => onDeleteCard(t)}
                                 />
                             </div>
@@ -136,7 +140,7 @@ export default function ListComponent({
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Enter a title"
-                        className="outline-none font-semibold w-full resize-none h-10"
+                        className="outline-none font-medium w-full resize-none h-10"
                     />
                 </div>
                 <div className="flex w-full gap-1">

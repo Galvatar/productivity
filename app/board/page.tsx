@@ -104,6 +104,17 @@ export default function BoardPage() {
         );
     }
 
+    function handleCardDescription(description: string, target: string) {
+        setLists((prevLists) =>
+            prevLists.map((list) => ({
+                ...list,
+                cards: list.cards.map((card) =>
+                    card.id === target ? { ...card, description: description } : card
+                ),
+            }))
+        );
+    }
+
     function handleCardDelete(target: string) {
         setLists((prevLists) => 
             prevLists.map((list) => ({
@@ -116,7 +127,7 @@ export default function BoardPage() {
     return (
         <div className="flex w-full h-full p-3 gap-5 overflow-scroll">
             <img 
-                className="fixed top-0 left-0 -z-10"
+                className="fixed top-0 left-0 -z-10 h-full w-full object-cover object-center"
                 src={'/image.png'} />
             {lists.map((list) => (
                 <div key={list.id}>
@@ -132,6 +143,7 @@ export default function BoardPage() {
                         onDeleteList={(t) => handleListDelete(t)}
                         onRenameCard={(title, target) => handleCardRename(title, target)}
                         onDeleteCard={(t) => handleCardDelete(t)}
+                        onEditDescription={(d, t) => handleCardDescription(d, t)}
                     />
                 </div>
             ))}
