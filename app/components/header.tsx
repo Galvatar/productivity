@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation";
-import Icon from "./icon";
+import Icon from "./appIcon";
 import CreateBoard from "./createBoard";
 
 export default function Header() {
