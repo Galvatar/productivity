@@ -42,7 +42,7 @@ export default function CardComponent({ card, onRename, onDelete, onEditDescript
             <div className="group relative border-2 border-transparent hover:border-secondary rounded-[10px]">
                 <div 
                     ref={cardRef}
-                    className="relative"
+                    className="relative cursor-pointer"
                     onContextMenu={handleContextMenu}
                     onClick={() => setDescription(true)}
                     draggable={!edit}

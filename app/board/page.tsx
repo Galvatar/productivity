@@ -9,6 +9,7 @@ export default function BoardPage() {
     const [lists, setLists] = useState<List[]>([]);
     const [draggedCard, setDraggedCard] = useState<Card | null>(null);
     const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
+    const [board, setBoard] = useState<Board | null>(null);
 
     useEffect(() => {
         fetchInitialValues();
@@ -19,19 +20,20 @@ export default function BoardPage() {
     }, [lists])
 
     function fetchInitialValues() {
-        if (localStorage.getItem('board') != null) {
-            const board: Board = JSON.parse(localStorage.getItem('board')!)
+        if (sessionStorage.getItem('board') != null) {
+            const board: Board = JSON.parse(sessionStorage.getItem('board')!)
+            setBoard(board);
             setLists(board.lists)
         }
     }
 
     function save() {
-        const board: Board = {
-            id: "board",
-            title: "board",
-            lists: lists
-        }
-        localStorage.setItem('board', JSON.stringify(board))
+        if (!board) return;
+        board.lists = lists
+        sessionStorage.setItem('board', JSON.stringify(board))
+        const boards: Board[] = JSON.parse(localStorage.getItem('boards') || '[]');
+        const removed = boards.filter((b) => b.id !== board.id);
+        localStorage.setItem('boards', JSON.stringify([...removed, board]))
     }
 
     function handleNewList(list: List) {
